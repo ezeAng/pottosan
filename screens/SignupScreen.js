@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import { StyleSheet, Text, View, Image, Button, Pressable, TextInput } from 'react-native';
-import logoImage from '../assets/Gardening-bro.png';
 import firebase from "firebase";
+import "firebase/firestore";
 
 const styles = StyleSheet.create({
   container: {
@@ -46,42 +46,73 @@ const styles = StyleSheet.create({
   },
 });
 
-const HomeScreen = ({ navigation }) => {
+const SignupScreen = ({ navigation }) => {
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const back = () => {
+    navigation.navigate('HomeScreen');
+  }
   const handleSignUp = () => {
     // Implement sign-up logic here using Firebase
     console.log("Clicked signup");
-    navigation.navigate('MainNavigator', { screen: 'Garden' });
-  };
 
-  const handleLogin = () => {
-    const email = "user@example.com"; // Get these from your input fields
-    const password = "userpassword";
-  
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    //Handle signup with firebase here
+    firebase.firestore().collection('users')
+    .where('username', '==', username)
+    .get()
+    .then(querySnapshot => {
+      if (!querySnapshot.empty) {
+        // Username already exists
+        Alert.alert('Error', 'This username is already taken.');
+        return; // Stop the function here
+      }
+    });
+
+    firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        // Signed in 
-        var user = userCredential.user; 
-        // Navigate to next screen here if needed
-        navigation.navigate('MainNavigator', { screen: 'Garden' });
+        // User created, now add username and other details to Firestore
+        const user = userCredential.user;
+        firebase.firestore().collection('users').doc(user.uid).set({
+          username: username,
+          email: email
+          // add other user details as needed
+        })
+        .then(() => {
+          console.log('User added to Firestore');
+          navigation.navigate('HomeScreen');
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
       })
       .catch((error) => {
         var errorCode = error.code;
         var errorMessage = error.message;
-        // Handle errors here
+        if (errorCode == 'auth/email-already-in-use') {
+          Alert.alert('Error', 'This email address is already in use.');
+        } else if (errorCode == 'auth/invalid-email') {
+          Alert.alert('Error', 'This email address is not valid.');
+        } else if (errorCode == 'auth/weak-password') {
+          Alert.alert('Error', 'The password is too weak.');
+        } else {
+          Alert.alert('Error', errorMessage);
+        }
       });
-  }
+  };
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={logoImage} // Replace with your logo URL
-        style={styles.logo}
+      <Text style={styles.title}>Sign up for a new account.</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setUsername}
+        value={email}
+        placeholder="Enter a username"
+        keyboardType="email-address"
       />
-      <Text style={styles.title}>Welcome to pottosan!</Text>
       <TextInput
         style={styles.input}
         onChangeText={setEmail}
@@ -96,9 +127,10 @@ const HomeScreen = ({ navigation }) => {
         placeholder="Enter your password"
         secureTextEntry
       />
+      <Text>Terms and conditions checkbox here. TODO</Text>
 
       <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.text}>Login</Text>
+        <Text style={styles.text}>Back</Text>
       </Pressable>
       <Pressable style={styles.button_signup} onPress={handleSignUp}>
         <Text style={styles.text}>Signup</Text>
@@ -108,4 +140,4 @@ const HomeScreen = ({ navigation }) => {
   )
 }
 
-export default HomeScreen
+export default SignupScreen

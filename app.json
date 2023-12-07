@@ -1,5 +1,14 @@
 {
   "expo": {
+    "plugins": [
+      "react-native-wifi-reborn",
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+        }
+      ]
+    ],
     "name": "pottosan_app",
     "slug": "pottosan_app",
     "version": "1.0.0",

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 import { BleManager } from 'react-native-ble-plx';
 import { btoa, atob } from 'react-native-quick-base64';
 
@@ -11,18 +11,31 @@ const SENSOR_DATA_CHAR_UUID = "";
 
 const bleManager = new BleManager();
 
-const Settings = ({navigation}) => {
+
+
+const BluetoothScreen = ({navigation, route}) => {
+  const [qrCode, setQrCode] = useState('');
+  const [targetDev, setTargetDev] = useState('');
+
+  useEffect(() => {
+    if (route.params?.scannedCode) {
+      setQrCode(route.params.scannedCode);
+      setTargetDev(route.params.scannedCode)
+    }
+  }, [route.params?.scannedCode]);
+
   // const {logout, userInfo} = useContext(AuthenticationContext);
 
   const [deviceId, setDeviceId] = useState(null);
   const [devicesFound, setDevicesFound] = useState({});
-  const [connectionStatus, setConnectionStatus] = useState("Searching...");
+  const [connectionStatus, setConnectionStatus] = useState("Idle");
 
   const deviceRef = useRef(null);
 
   const deviceTargetId = "30E56056-F0A3-DB2F-037E-06BF23981043"
 
   const searchAndConnectToDevice = () => {
+    setConnectionStatus("Searching...")
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.error(error);
@@ -91,17 +104,21 @@ const Settings = ({navigation}) => {
   }, [deviceId]);
 
 
-  const handleLogout = () => {
-    // logout();
-    navigation.navigate('Home');
+  const addDeviceFromQR = () => {
+    navigation.navigate("QRCamera");
   }
 
 
   return (
-    <View>
-      <Text>
-        Settings - verticle list
-      </Text>
+    <View style={styles.container}>
+      <Text>Target Device id: {qrCode}</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setTargetDev}
+        value={targetDev}
+        placeholder="Device Id"
+      />
+      <Button title='Scan QR' onPress={addDeviceFromQR}/>
       {Object.entries(devicesFound).map(([key, value]) => (
                 <Text key={key}>{`${key}: ${value}`}</Text>
             ))}
@@ -110,12 +127,30 @@ const Settings = ({navigation}) => {
       </Text>
       <Button title="Scan for Devices" onPress={searchAndConnectToDevice} />
       <Button title="Stop Scan" onPress={stopScan} />
-      <Button 
-        title='Logout' 
-        onPress={handleLogout}
-      />
+      
     </View>
   )
 }
 
-export default Settings
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    height: 40,
+    marginVertical: 12,
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+  }
+});
+
+export default BluetoothScreen
