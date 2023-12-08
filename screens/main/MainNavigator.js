@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Route, useRoute } from '@react-navigation/native';
 import MainScreen from './MainScreen';
 import SettingsNavigator from './SettingsNavigator';
 import Community from './Community';
@@ -7,14 +8,17 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const Tab = createBottomTabNavigator();
 
-const MainNavigator = () => {
+const MainNavigator = ({navigation}) => {
+  const route = useRoute();
+  const {username} = route.params;
+  console.log("MainNavigation",username);
   return (
     <Tab.Navigator tabBarOptions={{
       activeTintColor: 'darkgreen', // Color of the icon when the tab is active
       inactiveTintColor: 'gray', // Color of the icon when the tab is inactive
     }}>
       
-      <Tab.Screen name="Garden" component={MainScreen} options={{
+      <Tab.Screen name="Garden" initialParams={{ username: username }} component={MainScreen} options={{
         headerShown: false,
         tabBarLabel: 'Home',
         tabBarIcon: ({ color, size, focused }) => (

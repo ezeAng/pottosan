@@ -1,7 +1,12 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, Image, Button, Pressable, TextInput } from 'react-native';
-import firebase from "firebase";
-import "firebase/firestore";
+import { StyleSheet, Text, View, Image, Modal, TouchableOpacity,TouchableHighlight, Pressable, TextInput } from 'react-native';
+import { FIREBASE_AUTH } from '../config';
+import { FIREBASE_STORE } from '../config';
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import AnimatedProgressWheel from 'react-native-progress-wheel';
+import CheckBox from '@react-native-community/checkbox';
+
 
 const styles = StyleSheet.create({
   container: {
@@ -10,10 +15,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  logo: {
-    width: "100%", // Adjust width as needed
-    height: "50%", // Adjust height as needed
-    borderRadius: 50, // Half of width/height to make it perfectly round
+  container_: {
+    alignItems: 'center',
+  },
+  input: {
+    width: 250, // Make the text inputs wider
+    height: 40, // Increase the height
+    marginTop: 20, // Add more margin from the top
+    marginBottom: 5,
+    paddingHorizontal: 10,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    width: '80%',
+    flexDirection: 'row', // Make the buttons horizontal
+    marginTop: 20, // Add margin from the top
+  },
+  button: {
+    width: '80%',
+    flex: 1, // Make both buttons take equal width
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    marginHorizontal: 5, // Add some horizontal margin between the buttons
+    backgroundColor: '#eb9e34',
   },
   title: {
     fontFamily: 'Prata-Regular',
@@ -24,118 +54,155 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold"
   },
-  button: {
+  button_signup: {
+    width: '80%',
+    flex: 1, // Make both buttons take equal width
     alignItems: 'center',
-    marginTop: 10,
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#7fc998',
-  },
-  button: {
-    alignItems: 'center',
-    marginTop: 10,
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    backgroundColor: '#eb9e34',
+    marginHorizontal: 5, // Add some horizontal margin between the buttons
+    backgroundColor: '#ffd885',
   },
 });
 
 const SignupScreen = ({ navigation }) => {
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
+  const store = FIREBASE_STORE;
 
   const back = () => {
-    navigation.navigate('HomeScreen');
+    navigation.navigate('Home');
   }
-  const handleSignUp = () => {
-    // Implement sign-up logic here using Firebase
-    console.log("Clicked signup");
 
-    //Handle signup with firebase here
-    firebase.firestore().collection('users')
-    .where('username', '==', username)
-    .get()
-    .then(querySnapshot => {
-      if (!querySnapshot.empty) {
-        // Username already exists
-        Alert.alert('Error', 'This username is already taken.');
-        return; // Stop the function here
-      }
-    });
+  const handleSignup = async () => {
+    if (!agreeTerms) {
+      alert("Please agree to the Terms and Conditions.");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const docRef = doc(store, "users", username);
+      const docSnap = await getDoc(docRef);
 
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // User created, now add username and other details to Firestore
-        const user = userCredential.user;
-        firebase.firestore().collection('users').doc(user.uid).set({
-          username: username,
-          email: email
-          // add other user details as needed
-        })
-        .then(() => {
-          console.log('User added to Firestore');
-          navigation.navigate('HomeScreen');
-        })
-        .catch((error) => {
-          console.error("Error writing document: ", error);
+      if (docSnap.exists()) {
+        alert("Username already exists");
+        return;
+      } 
+      const response = await createUserWithEmailAndPassword(auth, email, password);
+      if (response.user.uid) {
+        // Add a new document in collection
+        await setDoc(doc(store, "users", username), {
+          email: response.user.email,
+          uid: response.user.uid,
+          agreeTerms: agreeTerms
         });
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        if (errorCode == 'auth/email-already-in-use') {
-          Alert.alert('Error', 'This email address is already in use.');
-        } else if (errorCode == 'auth/invalid-email') {
-          Alert.alert('Error', 'This email address is not valid.');
-        } else if (errorCode == 'auth/weak-password') {
-          Alert.alert('Error', 'The password is too weak.');
-        } else {
-          Alert.alert('Error', errorMessage);
-        }
-      });
-  };
+        await setDoc(doc(store, "userEmails", response.user.email), {
+          username: username
+        });
+      }
+      navigation.navigate("Home")
+      setIsLoading(false);
+    } catch (err) {
+      console.log(err)
+      alert('Sign up failed: ' + err.message)
+    }
+  }
+
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign up for a new account.</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={email}
-        placeholder="Enter a username"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setEmail}
-        value={email}
-        placeholder="Enter your email"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        placeholder="Enter your password"
-        secureTextEntry
-      />
-      <Text>Terms and conditions checkbox here. TODO</Text>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => {
+        setModalVisible(!modalVisible);
+      }}
+    >
+    <View style={{ marginTop: 22 }}>
+      <View>
+        <Text style={{ marginBottom: 15 }}>Terms and Conditions</Text>
 
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.text}>Back</Text>
-      </Pressable>
-      <Pressable style={styles.button_signup} onPress={handleSignUp}>
-        <Text style={styles.text}>Signup</Text>
-      </Pressable>
-      
+        {/* Terms and conditions content here */}
+        <Text>Here are the terms and conditions...</Text>
+
+        <TouchableHighlight
+          style={{ /* Your button style */ }}
+          onPress={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+          <Text>Hide Terms and Conditions</Text>
+        </TouchableHighlight>
+      </View>
+    </View>
+  </Modal>
+    <Text style={styles.title}>Sign up for a new account.</Text>
+      {isLoading ? <AnimatedProgressWheel
+        size={140}
+        width={20}
+        color={'green'}
+        backgroundColor={'grey'}
+        progress={100}
+        animateFromValue={0}
+        duration={600}
+      /> : 
+      <View style={styles.container_}>
+        
+        <TextInput
+          style={styles.input}
+          onChangeText={setUsername}
+          value={username}
+          placeholder="Enter a username"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          placeholder="Enter your email"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+          <CheckBox
+            value={agreeTerms}
+            onValueChange={setAgreeTerms}
+          />
+          <Text style={{ marginLeft: 12 }}>
+            I agree to the Terms and Conditions. 
+          </Text>
+        </View>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>
+              Read Terms and Conditions
+            </Text>
+          </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.button} onPress={back}>
+            <Text style={styles.text}>Back</Text>
+          </Pressable>
+          <Pressable style={styles.button_signup} onPress={handleSignup}>
+            <Text style={styles.text}>Signup</Text>
+          </Pressable>
+        </View>
+      </View>}
+
     </View>
   )
 }

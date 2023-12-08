@@ -12,6 +12,11 @@ function SettingsScreen({ navigation }) {
       <TouchableOpacity 
         style={styles.item}
         onPress={() => navigation.navigate('BluetoothScreen')}>
+        <Text>Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.item}
+        onPress={() => navigation.navigate('BluetoothScreen')}>
         <Text>Bluetooth</Text>
       </TouchableOpacity>
       <TouchableOpacity 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Route, useRoute } from '@react-navigation/native';
 import { StyleSheet, Text, View, Button, Modal, Pressable, Dimensions, ImageBackground } from 'react-native';
 import { ref, set, update, onValue } from "firebase/database";
 import { db } from '../../config';
@@ -16,6 +17,16 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Prata-Regular', // Replace with your font's name
     fontSize: 20,
+  },
+  rowtitle: {
+    fontFamily: 'Prata-Regular', // Replace with your font's name
+    fontSize: 20,
+    marginTop: 10
+  },
+  medium: {
+    fontFamily: 'Prata-Regular', // Replace with your font's name
+    fontSize: 24,
+    marginTop: 100
   },
   container: {
     flex: 1,
@@ -67,13 +78,16 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     fontFamily: "Prata-Regular",
-    marginTop: 90,
-    textAlign: "center"
+    marginTop: "20%" ,
+    textAlign: "center",
+    width: "90%"
   },
 });
 
 const MainScreen = () => {
-  const uuid = "testuser1";
+  const route = useRoute();
+  const { username } = route.params;
+  const uuid = username;
   const [modalVisible, setModalVisible] = useState(false);
   const [currData, setCurrData] = useState(null);
   const [currentViewItem, setCurrentViewItem] = useState(0);
@@ -94,10 +108,10 @@ const MainScreen = () => {
     const valuesRef = ref(db, 'users/' + uuid + '/');
     onValue(valuesRef, (snapshot) => {
       const data = snapshot.val();
-      console.log(data)
-      var resData = Object.values(data);
-      setCurrData(resData);
-      if (resData) {
+
+      if (data) {
+        var resData = Object.values(data);
+        setCurrData(resData);
         setCurrentViewItem(resData[0])
       }
     });
@@ -115,7 +129,8 @@ const MainScreen = () => {
       resizeMode="cover" // or "contain" based on your need
       style={styles.imageBackground}>
       <View style={styles.container}>
-      <Text style={styles.mainTitle}>Welcome to your garden</Text>
+
+      <Text style={styles.mainTitle}>Welcome to your garden, {username}</Text>
       {currData ? <Carousel
         data={currData}
         onSnapToItem={onSnapItem}
@@ -129,7 +144,7 @@ const MainScreen = () => {
         sliderWidth={viewportWidth}
         itemWidth={viewportWidth - 60} // Adjust item width here
         itemHeight={viewportHeight - 60}
-      /> : <Text>No Plants added! Go to settings and add plants!</Text>}
+      /> : <Text style={styles.medium}>Looks like you dont have any plants! Go to settings and add plants!</Text>}
       <Modal
         animationType="slide"
         transparent={true}
@@ -140,19 +155,19 @@ const MainScreen = () => {
       }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.title}>Name: {currentViewItem.name}</Text>
-            <Text style={styles.title}>Happiness: High</Text>
-            <Text style={styles.title}>Overall health: High</Text>
-            <Text style={styles.title}>Type of plant: cucumber</Text>
-            <Text style={styles.title}>Light Reading: {currentViewItem.light}</Text>
-            <Text style={styles.title}>Soil Moisture Reading: 10</Text>
-            <Text style={styles.title}>Temperature Reading: 32</Text>
-            <Text style={styles.title}>Nutrient Reading: All present</Text>
+            <Text style={styles.rowtitle}>Name: {currentViewItem.name}</Text>
+            <Text style={styles.rowtitle}>Happiness: High</Text>
+            <Text style={styles.rowtitle}>Overall health: High</Text>
+            <Text style={styles.rowtitle}>Type of plant: Cucumber</Text>
+            <Text style={styles.rowtitle}>Light Reading: {currentViewItem.light}</Text>
+            <Text style={styles.rowtitle}>Soil Moisture Reading: {currentViewItem.moisture? Object.values(currentViewItem.moisture)[Object.values(currentViewItem.moisture).length -1] : "None"}</Text>
+            <Text style={styles.rowtitle}>Temperature Reading: {currentViewItem.temperature? Object.values(currentViewItem.temperature)[Object.values(currentViewItem.temperature).length -1] : "None"}</Text>
+            <Text style={styles.rowtitle}>Nutrient Reading: All present</Text>
             <Button title='Close' onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
-    </View>
+      </View>
     </ImageBackground>
   )
 }
