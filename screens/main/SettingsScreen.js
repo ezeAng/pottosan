@@ -11,8 +11,13 @@ function SettingsScreen({ navigation }) {
     <ScrollView style={styles.container}>
       <TouchableOpacity 
         style={styles.item}
-        onPress={() => navigation.navigate('BluetoothScreen')}>
+        onPress={() => navigation.navigate('ProfileScreen')}>
         <Text>Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.item}
+        onPress={() => navigation.navigate('PaymentScreen')}>
+        <Text>Payment</Text>
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.item}

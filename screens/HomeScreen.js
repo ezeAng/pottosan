@@ -1,11 +1,11 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, Image, KeyboardAvoidingView, Pressable, TextInput } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, Image, KeyboardAvoidingView, Pressable, TextInput } from 'react-native';
 import logoImage from '../assets/Gardening-bro.png';
 import { FIREBASE_AUTH } from '../config';
 import { FIREBASE_STORE } from '../config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import Spinner from 'react-native-spinkit';
 import { doc, getDoc } from 'firebase/firestore';
-import AnimatedProgressWheel from 'react-native-progress-wheel';
 
 const styles = StyleSheet.create({
   container: {
@@ -73,15 +73,17 @@ const styles = StyleSheet.create({
 
 });
 
+
+
+
 const HomeScreen = ({ navigation }) => {
+  const auth = FIREBASE_AUTH;
+  const store = FIREBASE_STORE;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
   const [isLoading, setIsLoading] = useState('');
-  const auth = FIREBASE_AUTH;
-  const store = FIREBASE_STORE;
-  
 
   const handleSignUp = () => {
     navigation.navigate('SignupScreen');
@@ -105,14 +107,15 @@ const HomeScreen = ({ navigation }) => {
             username: username
           });
         } else {
-          console.log("No such document!");
+          console.log("Username does not exist");
         }
         
         
       }
     } catch (err) {
-      console.log(err)
-      alert('Sign in failed: ' + err.message)
+      console.log('Sign in error: ' + err.message)
+      alert('Sign in failed: ' + 'Email or Password Incorrect');
+      setIsLoading(false);
     }
     
   }
@@ -124,15 +127,8 @@ const HomeScreen = ({ navigation }) => {
         source={logoImage} // Replace with your logo URL
         style={styles.logo}
       />
-      {isLoading ? <AnimatedProgressWheel
-        size={140}
-        width={20}
-        color={'green'}
-        backgroundColor={'grey'}
-        progress={100}
-        animateFromValue={0}
-        duration={600}
-      /> : 
+
+      {isLoading ? <Spinner isVisible={isLoading} size={150} type={"9CubeGrid"} color={"#00ff00"}/>: 
       
         <View style={styles.none}>
           <Text style={styles.title}>Welcome to pottosan!</Text>

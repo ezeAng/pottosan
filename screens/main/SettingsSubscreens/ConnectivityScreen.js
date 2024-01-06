@@ -13,11 +13,18 @@ const ConnectivityScreen = ({ navigation }) => {
   const getCurrWifi = () => {
     WifiManager.getCurrentWifiSSID().then(
       ssid => {
-        console.log("Your current connected wifi SSID is " + ssid)
-        setCurrentConnectedSSID(ssid);
+        if (ssid != "") {
+          console.log("Your current connected wifi SSID is " + ssid)
+          setCurrentConnectedSSID(ssid);
+          setSsid(ssid);
+        } else {
+          alert("Not connected to Wifi!");
+        }
+        
       },
       () => {
-        console.log("Cannot get current SSID!")
+        console.log("Cannot get current SSID!");
+        alert("Cannot get current SSID. Check WIFI connection");
       }
     );
   }
@@ -68,7 +75,7 @@ const ConnectivityScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>ConnectivityScreen</Text>
+      <Text style={styles.title}>Connectivity Details</Text>
       <Button title='Refresh Wifi' onPress={getCurrWifi} />
       <Text>Currently connected to: {currentConnectedSSID}</Text>
       <TextInput

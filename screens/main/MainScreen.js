@@ -7,6 +7,7 @@ import Card from '../../components/Card';
 import Carousel from 'react-native-snap-carousel';
 import bgimage from '../../assets/bg.jpg'
 
+
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
 const styles = StyleSheet.create({
   imageBackground: {

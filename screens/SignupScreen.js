@@ -4,9 +4,9 @@ import { FIREBASE_AUTH } from '../config';
 import { FIREBASE_STORE } from '../config';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import AnimatedProgressWheel from 'react-native-progress-wheel';
 import CheckBox from '@react-native-community/checkbox';
-
+import { ScrollView } from 'react-native-gesture-handler';
+import Spinner from 'react-native-spinkit';
 
 const styles = StyleSheet.create({
   container: {
@@ -19,14 +19,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   input: {
-    width: 250, // Make the text inputs wider
-    height: 40, // Increase the height
-    marginTop: 20, // Add more margin from the top
-    marginBottom: 5,
+    width: 300, // Make the text inputs wider
+    height: 50, // Increase the height
+    marginTop: 10, // Add more margin from the top
+    marginBottom: 3,
     paddingHorizontal: 10,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 10,
   },
   buttonContainer: {
     width: '80%',
@@ -47,7 +47,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Prata-Regular',
-    fontSize: 32,
+    fontSize: 36,
+    margin: 6
   },
   text: {
     fontFamily: 'Prata-Regular',
@@ -66,6 +67,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 5, // Add some horizontal margin between the buttons
     backgroundColor: '#ffd885',
   },
+  closeButton: {
+    backgroundColor: '#007bff', // Example color, change as needed
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25, // This will give the button rounded corners
+    marginTop: 10, // Spacing above the button
+  },
+  buttonText: {
+    color: 'white', // Text color, change as needed
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
 });
 
 const SignupScreen = ({ navigation }) => {
@@ -75,6 +88,7 @@ const SignupScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordB, setPasswordB] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const auth = FIREBASE_AUTH;
   const store = FIREBASE_STORE;
@@ -83,12 +97,33 @@ const SignupScreen = ({ navigation }) => {
     navigation.navigate('Home');
   }
 
+  const requestClose = () => {
+    setModalVisible(!modalVisible);
+  }
+
+  const showTCModal = () => {
+    console.log("ShowTC");
+    setModalVisible(true);
+  }
+
+  const checkPasswordMatch = () => {
+    if (password != passwordB)
+    {
+      alert("Passwords do not match.");
+      return false;
+    }
+    return true;
+  }
+
   const handleSignup = async () => {
+    // Standard requirements for Signup
     if (!agreeTerms) {
       alert("Please agree to the Terms and Conditions.");
       return;
     }
+    if (!checkPasswordMatch()){ return; }
     
+    // Attempt Signup 
     setIsLoading(true);
     try {
       const docRef = doc(store, "users", username);
@@ -96,8 +131,10 @@ const SignupScreen = ({ navigation }) => {
 
       if (docSnap.exists()) {
         alert("Username already exists");
+        setIsLoading(false);
         return;
-      } 
+      }
+
       const response = await createUserWithEmailAndPassword(auth, email, password);
       if (response.user.uid) {
         // Add a new document in collection
@@ -110,11 +147,15 @@ const SignupScreen = ({ navigation }) => {
           username: username
         });
       }
+
+      // If successfully created user
       navigation.navigate("Home")
-      setIsLoading(false);
+      
     } catch (err) {
       console.log(err)
-      alert('Sign up failed: ' + err.message)
+      alert('Sign up failed: Username or Email already exists');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -125,40 +166,33 @@ const SignupScreen = ({ navigation }) => {
       animationType="slide"
       transparent={true}
       visible={modalVisible}
-      onRequestClose={() => {
-        setModalVisible(!modalVisible);
-      }}
+      onRequestClose={requestClose}
     >
-    <View style={{ marginTop: 22 }}>
-      <View>
-        <Text style={{ marginBottom: 15 }}>Terms and Conditions</Text>
+      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <View style={{ height: '80%', backgroundColor: '#d3d3d3', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 }}>
+          <Text style={{ marginBottom: 15, fontSize: 32, fontWeight: 'bold' }}>Terms and Conditions</Text>
 
-        {/* Terms and conditions content here */}
-        <Text>Here are the terms and conditions...</Text>
+          <ScrollView style={{ flex: 1 }}>
+            <Text>
+            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.
+            </Text>
+          </ScrollView>
 
-        <TouchableHighlight
-          style={{ /* Your button style */ }}
-          onPress={() => {
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <Text>Hide Terms and Conditions</Text>
-        </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.closeButton}
+            onPress={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <Text style={styles.buttonText}>Hide Terms and Conditions</Text>
+          </TouchableHighlight>
+        </View>
       </View>
-    </View>
-  </Modal>
+    </Modal>
+
     <Text style={styles.title}>Sign up for a new account.</Text>
-      {isLoading ? <AnimatedProgressWheel
-        size={140}
-        width={20}
-        color={'green'}
-        backgroundColor={'grey'}
-        progress={100}
-        animateFromValue={0}
-        duration={600}
-      /> : 
+      {isLoading ? <Spinner isVisible={isLoading} size={150} type={"9CubeGrid"} color={"#00ff00"}/> : 
       <View style={styles.container_}>
-        
         <TextInput
           style={styles.input}
           onChangeText={setUsername}
@@ -179,6 +213,13 @@ const SignupScreen = ({ navigation }) => {
           placeholder="Enter your password"
           secureTextEntry
         />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPasswordB}
+          value={passwordB}
+          placeholder="Confirm your password"
+          secureTextEntry
+        />
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
           <CheckBox
             value={agreeTerms}
@@ -188,11 +229,11 @@ const SignupScreen = ({ navigation }) => {
             I agree to the Terms and Conditions. 
           </Text>
         </View>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>
-              Read Terms and Conditions
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={showTCModal}>
+          <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>
+            Read Terms and Conditions
+          </Text>
+        </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <Pressable style={styles.button} onPress={back}>
             <Text style={styles.text}>Back</Text>
@@ -202,9 +243,10 @@ const SignupScreen = ({ navigation }) => {
           </Pressable>
         </View>
       </View>}
-
     </View>
   )
 }
+
+
 
 export default SignupScreen

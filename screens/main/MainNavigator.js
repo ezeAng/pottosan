@@ -11,9 +11,8 @@ const Tab = createBottomTabNavigator();
 const MainNavigator = ({navigation}) => {
   const route = useRoute();
   const {username} = route.params;
-  console.log("MainNavigation",username);
   return (
-    <Tab.Navigator tabBarOptions={{
+    <Tab.Navigator screenOptions={{
       activeTintColor: 'darkgreen', // Color of the icon when the tab is active
       inactiveTintColor: 'gray', // Color of the icon when the tab is inactive
     }}>
@@ -31,11 +30,11 @@ const MainNavigator = ({navigation}) => {
             <MaterialCommunityIcons name="greenhouse" color={color} size={size} />
           )
         }} />
-      <Tab.Screen name="Shop" component={Shop} options={{
+      {/* <Tab.Screen name="Shop" component={Shop} options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="shopping" color={color} size={size} />
           )
-        }} />
+        }} /> */}
       <Tab.Screen name="Settings" component={SettingsNavigator} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="cog" color={color} size={size} />

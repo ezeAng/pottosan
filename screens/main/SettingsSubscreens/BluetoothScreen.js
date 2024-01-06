@@ -32,14 +32,14 @@ const BluetoothScreen = ({navigation, route}) => {
 
   const deviceRef = useRef(null);
 
-  const deviceTargetId = "30E56056-F0A3-DB2F-037E-06BF23981043"
+  var deviceTargetId = targetDev;
 
   const searchAndConnectToDevice = () => {
     setConnectionStatus("Searching...")
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
-        console.error(error);
         setConnectionStatus("Error searching for devices");
+        alert("Error: " + error.message);
         return;
       }
       setDevicesFound(prevDict => {
