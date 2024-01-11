@@ -7,31 +7,22 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 import { ScrollView } from 'react-native-gesture-handler';
 import Spinner from 'react-native-spinkit';
+import {globalStyles, standardInput, standardText} from './GlobalStyles';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: globalStyles.BackgroundSecondary,
   },
   container_: {
     alignItems: 'center',
   },
-  input: {
-    width: 300, // Make the text inputs wider
-    height: 50, // Increase the height
-    marginTop: 10, // Add more margin from the top
-    marginBottom: 3,
-    paddingHorizontal: 10,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-  },
   buttonContainer: {
     width: '80%',
     flexDirection: 'row', // Make the buttons horizontal
-    marginTop: 20, // Add margin from the top
+    marginTop: "10%", // Add margin from the top
   },
   button: {
     width: '80%',
@@ -40,20 +31,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 10,
     elevation: 3,
     marginHorizontal: 5, // Add some horizontal margin between the buttons
-    backgroundColor: '#eb9e34',
+    backgroundColor: globalStyles.Tertiary,
   },
   title: {
     fontFamily: 'Prata-Regular',
     fontSize: 36,
-    margin: 6
-  },
-  text: {
-    fontFamily: 'Prata-Regular',
-    fontSize: 16,
-    fontWeight: "bold"
+    margin: 6,
+    textAlign: "center"
   },
   button_signup: {
     width: '80%',
@@ -62,22 +49,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 10,
     elevation: 3,
     marginHorizontal: 5, // Add some horizontal margin between the buttons
-    backgroundColor: '#ffd885',
+    backgroundColor: globalStyles.PrimaryBright,
   },
   closeButton: {
     backgroundColor: '#007bff', // Example color, change as needed
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25, // This will give the button rounded corners
-    marginTop: 10, // Spacing above the button
+    paddingTop: 15 ,
+    borderRadius: 12, // This will give the button rounded corners
+    marginTop: "15%", // Spacing above the button
+    marginBottom: "15%",
+    height: 50,
+    textAlignVertical: "center",
   },
   buttonText: {
     color: 'white', // Text color, change as needed
     textAlign: 'center',
     fontWeight: 'bold',
+    margin: "auto"
   },
 });
 
@@ -122,7 +112,8 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
     if (!checkPasswordMatch()){ return; }
-    
+    //Set lowercase
+    setEmail(email.toLowerCase());
     // Attempt Signup 
     setIsLoading(true);
     try {
@@ -191,36 +182,38 @@ const SignupScreen = ({ navigation }) => {
     </Modal>
 
     <Text style={styles.title}>Sign up for a new account.</Text>
-      {isLoading ? <Spinner isVisible={isLoading} size={150} type={"9CubeGrid"} color={"#00ff00"}/> : 
+      {isLoading ? <Spinner isVisible={isLoading} size={240} type={"Pulse"} color={globalStyles.PrimaryBright}/> : 
       <View style={styles.container_}>
         <TextInput
-          style={styles.input}
+          style={standardInput}
           onChangeText={setUsername}
           value={username}
           placeholder="Enter a username"
         />
         <TextInput
-          style={styles.input}
+          style={standardInput}
           onChangeText={setEmail}
           value={email}
           placeholder="Enter your email"
           keyboardType="email-address"
         />
         <TextInput
-          style={styles.input}
+          style={standardInput}
           onChangeText={setPassword}
           value={password}
           placeholder="Enter your password"
           secureTextEntry
         />
         <TextInput
-          style={styles.input}
+          style={standardInput}
           onChangeText={setPasswordB}
           value={passwordB}
           placeholder="Confirm your password"
           secureTextEntry
         />
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+        <View style={
+          { flexDirection: 'row', alignItems: 'center', marginTop: 10 }
+          }>
           <CheckBox
             value={agreeTerms}
             onValueChange={setAgreeTerms}
@@ -236,10 +229,10 @@ const SignupScreen = ({ navigation }) => {
         </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <Pressable style={styles.button} onPress={back}>
-            <Text style={styles.text}>Back</Text>
+            <Text style={standardText}>Back</Text>
           </Pressable>
           <Pressable style={styles.button_signup} onPress={handleSignup}>
-            <Text style={styles.text}>Signup</Text>
+            <Text style={standardText}>Signup</Text>
           </Pressable>
         </View>
       </View>}

@@ -6,37 +6,29 @@ import { FIREBASE_STORE } from '../config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import Spinner from 'react-native-spinkit';
 import { doc, getDoc } from 'firebase/firestore';
+import { globalStyles, standardText, standardInput } from './GlobalStyles';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: globalStyles.BackgroundPrimary,
   },
   logo: {
     width: "100%", // Adjust width as needed
     height: "40%", // Adjust height as needed
     borderRadius: 50, // Half of width/height to make it perfectly round
     position: "absolute",
-    top: 0
+    top: 10
   },
   inputContainer: {
-    width: '100%', // Make the input container wider
     alignItems: 'center', // Center the input fields horizontally
   },
-  input: {
-    width: 300, // Make the text inputs wider
-    height: 40, // Increase the height
-    marginTop: 20,
-    paddingHorizontal: 10,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 4,
-  },
+  input: standardInput,
   buttonContainer: {
     flexDirection: 'row', // Make the buttons horizontal
-    marginTop: 60,
+    marginTop: "10%",
     width: '80%', // Ensure buttons take full width
     justifyContent: 'space-between', // Add space between buttons
   },
@@ -49,22 +41,19 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   button_login: {
-    backgroundColor: '#7fc998',
+    backgroundColor: globalStyles.PrimaryBright,
     marginRight: 10, // Add some spacing between buttons
   },
   button_signup: {
-    backgroundColor: '#eb9e34',
+    backgroundColor: globalStyles.Tertiary,
     marginLeft: 10, // Add some spacing between buttons
   },
   title: {
     fontFamily: 'Prata-Regular',
-    fontSize: 32,
+    fontSize: 64,
+    marginTop: 50
   },
-  text: {
-    fontFamily: 'Prata-Regular',
-    fontSize: 16,
-    fontWeight: "bold"
-  },
+  text: standardText,
   none: {
     margin: 0,
     justifyContent: 'center',
@@ -92,6 +81,9 @@ const HomeScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setIsLoading(true)
 
+    //Set lowercase
+    setEmail(email.toLowerCase());
+
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       if (response) {
@@ -108,10 +100,12 @@ const HomeScreen = ({ navigation }) => {
           });
         } else {
           console.log("Username does not exist");
+          setIsLoading(false);
         }
         
         
       }
+      setIsLoading(false);
     } catch (err) {
       console.log('Sign in error: ' + err.message)
       alert('Sign in failed: ' + 'Email or Password Incorrect');
@@ -122,18 +116,16 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-
       <Image 
         source={logoImage} // Replace with your logo URL
         style={styles.logo}
       />
 
-      {isLoading ? <Spinner isVisible={isLoading} size={150} type={"9CubeGrid"} color={"#00ff00"}/>: 
+      {isLoading ? <Spinner isVisible={isLoading} size={240} type={"Pulse"} color={globalStyles.PrimaryBright}/>: 
       
         <View style={styles.none}>
-          <Text style={styles.title}>Welcome to pottosan!</Text>
+          <Text style={styles.title}>Pottosan.</Text>
           <KeyboardAvoidingView behavior='padding' style={styles.inputContainer}>
-            <View >
               <TextInput
                 style={styles.input}
                 onChangeText={setEmail}
@@ -148,8 +140,8 @@ const HomeScreen = ({ navigation }) => {
                 placeholder="Enter your password"
                 secureTextEntry
               />
-            </View>
           </KeyboardAvoidingView>
+
           <View style={styles.buttonContainer}>
             <Pressable style={[styles.button, styles.button_login]} onPress={handleLogin}>
               <Text style={styles.text}>Login</Text>

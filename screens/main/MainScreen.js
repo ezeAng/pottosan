@@ -6,6 +6,8 @@ import { db } from '../../config';
 import Card from '../../components/Card';
 import Carousel from 'react-native-snap-carousel';
 import bgimage from '../../assets/bg.jpg'
+import { globalStyles } from '../GlobalStyles';
+import DashboardComponent from '../../components/Dashboard/DashboardComponent';
 
 
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
@@ -27,13 +29,14 @@ const styles = StyleSheet.create({
   medium: {
     fontFamily: 'Prata-Regular', // Replace with your font's name
     fontSize: 24,
-    marginTop: 100
+    marginTop: 100,
+    color: globalStyles.Tertiary
   },
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    height: viewportHeight, // Ensures full height
+    width: viewportWidth,
+    alignContent: "center",
+    backgroundColor: globalStyles.BackgroundSecondary
   },
   logo: {
     width: 100, // Adjust width as needed
@@ -81,7 +84,8 @@ const styles = StyleSheet.create({
     fontFamily: "Prata-Regular",
     marginTop: "20%" ,
     textAlign: "center",
-    width: "90%"
+    width: "100%",
+    color: globalStyles.Primary
   },
 });
 
@@ -95,7 +99,6 @@ const MainScreen = () => {
 
   useEffect(()=> {
     readData();
-    
   }, [])
 
   const onSnapItem = (index) => {
@@ -105,17 +108,19 @@ const MainScreen = () => {
 
 
   const readData = () => {
-
-    const valuesRef = ref(db, 'users/' + uuid + '/');
+    // const valuesRef = ref(db, 'users/' + uuid + '/');
+    const valuesRef = ref(db, 'users/testuser1/');
     onValue(valuesRef, (snapshot) => {
       const data = snapshot.val();
 
       if (data) {
         var resData = Object.values(data);
+        console.log(resData);
         setCurrData(resData);
         setCurrentViewItem(resData[0])
       }
     });
+    console.log(valuesRef);
   }
 
   const handleOpenModal = () => {
@@ -125,14 +130,17 @@ const MainScreen = () => {
   
 
   return (
-    <ImageBackground
-      source={bgimage} // Replace with your image URL
-      resizeMode="cover" // or "contain" based on your need
-      style={styles.imageBackground}>
-      <View style={styles.container}>
-
+    <View style={styles.container}>
       <Text style={styles.mainTitle}>Welcome to your garden, {username}</Text>
       {currData ? <Carousel
+        containerCustomStyle={
+          {
+            maxHeight: viewportHeight * 0.25,
+            maxWidth: viewportWidth,
+            borderColor:"black", 
+            borderWidth: 1, 
+            borderStyle: "solid"}
+        }
         data={currData}
         onSnapToItem={onSnapItem}
         renderItem={({item, index}) => (
@@ -144,8 +152,12 @@ const MainScreen = () => {
         )}
         sliderWidth={viewportWidth}
         itemWidth={viewportWidth - 60} // Adjust item width here
-        itemHeight={viewportHeight - 60}
+        itemHeight={viewportHeight * 0.2}
       /> : <Text style={styles.medium}>Looks like you dont have any plants! Go to settings and add plants!</Text>}
+      
+      <DashboardComponent />
+      
+      
       <Modal
         animationType="slide"
         transparent={true}
@@ -168,8 +180,7 @@ const MainScreen = () => {
           </View>
         </View>
       </Modal>
-      </View>
-    </ImageBackground>
+    </View>
   )
 }
 

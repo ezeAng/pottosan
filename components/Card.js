@@ -8,7 +8,6 @@ const Card = ({item, index, handleOpenModal}) => {
     <View>
       <TouchableOpacity onPress={handleOpenModal} >
       <View style={styles.card}>
-      
         <Image 
           source={plantImage} // Assuming each item has an image property
           style={styles.image}
@@ -27,11 +26,10 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white" ,
     width: "100%" ,
-    minHeight: "50%",
-    height: "90%",
+    minHeight: "70%",
     borderRadius: 25,
-    padding: 10,
-    marginTop: 40,
+    padding: 5,
+    marginTop: 30,
     alignItems: 'center' // Center content horizontally
   },
   image: {
@@ -46,20 +44,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   plantName: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: 'bold',
     fontFamily: "Prata-Regular"
   },
   nameContainer: {
     backgroundColor: 'white',
-    width: '70%',
-    height: '15%',
+    minWidth: '50%',
+    maxWidth: 'auto',
+    height: 'auto',
     alignItems: 'center', // Center content horizontally
     verticalAlign: 'center',
     borderRadius: 20,
     padding: 10,
-    position: 'absolute',
-    bottom: "10%"
   }
 });
 
