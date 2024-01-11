@@ -11,9 +11,9 @@
     ],
     "name": "pottosan_app",
     "slug": "pottosan_app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/pottosan_logo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

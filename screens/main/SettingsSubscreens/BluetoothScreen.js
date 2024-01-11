@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { BleManager } from 'react-native-ble-plx';
 import { btoa, atob } from 'react-native-quick-base64';
+import { dataText, globalStyles, standardInput, standardText } from '../../GlobalStyles';
 
 // import { AuthenticationContext } from '../../global/auth/AuthenticationContext';
 // import { useContext } from 'react';
@@ -24,10 +25,9 @@ const BluetoothScreen = ({navigation, route}) => {
     }
   }, [route.params?.scannedCode]);
 
-  // const {logout, userInfo} = useContext(AuthenticationContext);
-
   const [deviceId, setDeviceId] = useState(null);
   const [devicesFound, setDevicesFound] = useState({});
+  const [devicesFoundArray, setDevicesFoundArray] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState("Idle");
 
   const deviceRef = useRef(null);
@@ -35,6 +35,8 @@ const BluetoothScreen = ({navigation, route}) => {
   var deviceTargetId = targetDev;
 
   const searchAndConnectToDevice = () => {
+    setDevicesFound({});
+    setDevicesFoundArray([]);
     setConnectionStatus("Searching...")
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
@@ -42,9 +44,18 @@ const BluetoothScreen = ({navigation, route}) => {
         alert("Error: " + error.message);
         return;
       }
-      setDevicesFound(prevDict => {
-        return { ...prevDict, [device.id]: device.name };
-      });
+      if (devicesFound.hasOwnProperty(device.id)) {
+        return;
+      } else {
+        setDevicesFound(prevDict => {
+          return { ...prevDict, [device.id]: device.name };
+        });
+        // Convert the devicesFound object into an array for FlatList
+        setDevicesFoundArray(prevArr => {
+          return [...prevArr, { id: device.id, name: device.name }]
+        })
+      }
+
       if (device.id === deviceTargetId) {
         console.log(device.name, device.id);
         bleManager.stopDeviceScan();
@@ -56,6 +67,9 @@ const BluetoothScreen = ({navigation, route}) => {
 
   const stopScan = () => {
     bleManager.stopDeviceScan();
+    setDevicesFound({});
+    setDevicesFoundArray([]);
+    setConnectionStatus("Idle");
   }
 
   const connectToDevice = (device) => {
@@ -108,6 +122,13 @@ const BluetoothScreen = ({navigation, route}) => {
     navigation.navigate("QRCamera");
   }
 
+  // Function to render each item in the list
+  const renderDevice = ({ item }) => (
+    <Text style={styles.deviceItem}>{`${item.id}: ${item.name}`}</Text>
+  );
+
+
+
 
   return (
     <View style={styles.container}>
@@ -118,16 +139,30 @@ const BluetoothScreen = ({navigation, route}) => {
         value={targetDev}
         placeholder="Device Id"
       />
-      <Button title='Scan QR' onPress={addDeviceFromQR}/>
-      {Object.entries(devicesFound).map(([key, value]) => (
-                <Text key={key}>{`${key}: ${value}`}</Text>
-            ))}
-      <Text>
-        Connection status: {connectionStatus}
-      </Text>
-      <Button title="Scan for Devices" onPress={searchAndConnectToDevice} />
-      <Button title="Stop Scan" onPress={stopScan} />
+      <TouchableOpacity style={styles.button} onPress={addDeviceFromQR}>
+        <Text>Scan QR</Text>
+      </TouchableOpacity>
+      {/* FlatList to display the devices */}
+      <FlatList
+        data={devicesFoundArray}
+        renderItem={renderDevice}
+        keyExtractor={item => item.id}
+        style={styles.deviceList}
+      />
+      <View style={styles.statusContainer}>
+        <Text style={dataText}>
+          Connection status: {connectionStatus}
+        </Text>
+      </View>
       
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={searchAndConnectToDevice} >
+          <Text style={dataText}>Scan for Devices</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonNegative} onPress={stopScan} >
+          <Text style={dataText}>Stop Scan</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -138,6 +173,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  statusContainer : {
+    backgroundColor: globalStyles.BackgroundPrimary,
+    flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+    alignSelf: "center",
+    width: "95%",
+    borderRadius: 10
+  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -145,11 +189,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    height: 40,
+    height: 50,
     marginVertical: 12,
     borderWidth: 1,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
+    width: "90%",
+    alignSelf: "center"
+  },
+  deviceList: {
+    height: 200, // Set your desired height here
+    // You can add other styles like margins or borders if needed
+  },
+  deviceItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: globalStyles.BackgroundSecondary,
+  },
+  buttonContainer: {
+    flexDirection: 'row', // Make the buttons horizontal
+    marginTop: "5%",
+    width: '100%', // Ensure buttons take full width
+    justifyContent: 'space-between', // Add space between buttons
+  },
+  button : {
+    flex: 1, // Make both buttons take equal width
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    margin: 10,
+    height: "40%",
+    elevation: 3,
+    backgroundColor: globalStyles.Bright
+  },
+  buttonNegative : {
+    flex: 1, // Make both buttons take equal width
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    margin: 10,
+    height: "40%",
+    elevation: 3,
+    backgroundColor: globalStyles.Highlight
   }
 });
 

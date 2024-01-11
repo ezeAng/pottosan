@@ -5,7 +5,6 @@ import { ref, set, update, onValue } from "firebase/database";
 import { db } from '../../config';
 import Card from '../../components/Card';
 import Carousel from 'react-native-snap-carousel';
-import bgimage from '../../assets/bg.jpg'
 import { globalStyles } from '../GlobalStyles';
 import DashboardComponent from '../../components/Dashboard/DashboardComponent';
 
@@ -79,13 +78,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mainTitle: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: 900,
     fontFamily: "Prata-Regular",
-    marginTop: "20%" ,
-    textAlign: "center",
-    width: "100%",
-    color: globalStyles.Primary
+    marginTop: "16%" ,
+    marginBottom: "4%",
+    textAlign: "left",
+    alignSelf: "center",
+    width: "85%",
+    color: globalStyles.PrimaryDark
   },
 });
 
@@ -135,11 +136,10 @@ const MainScreen = () => {
       {currData ? <Carousel
         containerCustomStyle={
           {
-            maxHeight: viewportHeight * 0.25,
+            maxHeight: viewportHeight * 0.2,
             maxWidth: viewportWidth,
-            borderColor:"black", 
-            borderWidth: 1, 
-            borderStyle: "solid"}
+            overflow: "visible"
+          }
         }
         data={currData}
         onSnapToItem={onSnapItem}
@@ -152,10 +152,10 @@ const MainScreen = () => {
         )}
         sliderWidth={viewportWidth}
         itemWidth={viewportWidth - 60} // Adjust item width here
-        itemHeight={viewportHeight * 0.2}
+        itemHeight={viewportHeight * 0.3}
       /> : <Text style={styles.medium}>Looks like you dont have any plants! Go to settings and add plants!</Text>}
       
-      <DashboardComponent />
+      <DashboardComponent data={currentViewItem}/>
       
       
       <Modal
@@ -169,13 +169,9 @@ const MainScreen = () => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.rowtitle}>Name: {currentViewItem.name}</Text>
-            <Text style={styles.rowtitle}>Happiness: High</Text>
-            <Text style={styles.rowtitle}>Overall health: High</Text>
-            <Text style={styles.rowtitle}>Type of plant: Cucumber</Text>
             <Text style={styles.rowtitle}>Light Reading: {currentViewItem.light}</Text>
             <Text style={styles.rowtitle}>Soil Moisture Reading: {currentViewItem.moisture? Object.values(currentViewItem.moisture)[Object.values(currentViewItem.moisture).length -1] : "None"}</Text>
             <Text style={styles.rowtitle}>Temperature Reading: {currentViewItem.temperature? Object.values(currentViewItem.temperature)[Object.values(currentViewItem.temperature).length -1] : "None"}</Text>
-            <Text style={styles.rowtitle}>Nutrient Reading: All present</Text>
             <Button title='Close' onPress={() => setModalVisible(false)} />
           </View>
         </View>

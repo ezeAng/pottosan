@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { ActivityIndicator, StyleSheet, Text, View, Image, KeyboardAvoidingView, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Image, KeyboardAvoidingView, Pressable, TextInput } from 'react-native';
 import logoImage from '../assets/Gardening-bro.png';
 import { FIREBASE_AUTH } from '../config';
 import { FIREBASE_STORE } from '../config';
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: globalStyles.BackgroundPrimary,
+    backgroundColor: globalStyles.Bright,
   },
   logo: {
     width: "100%", // Adjust width as needed
@@ -43,10 +43,12 @@ const styles = StyleSheet.create({
   button_login: {
     backgroundColor: globalStyles.PrimaryBright,
     marginRight: 10, // Add some spacing between buttons
+    borderRadius: 15
   },
   button_signup: {
     backgroundColor: globalStyles.Tertiary,
     marginLeft: 10, // Add some spacing between buttons
+    borderRadius: 15
   },
   title: {
     fontFamily: 'Prata-Regular',
@@ -114,6 +116,11 @@ const HomeScreen = ({ navigation }) => {
     
   }
 
+  const handleChangeEmailText = (email) => {
+    //Set lowercase
+    setEmail(email.toLowerCase());
+  }
+
   return (
     <View style={styles.container}>
       <Image 
@@ -128,7 +135,7 @@ const HomeScreen = ({ navigation }) => {
           <KeyboardAvoidingView behavior='padding' style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                onChangeText={setEmail}
+                onChangeText={handleChangeEmailText}
                 value={email}
                 placeholder="Enter your email"
                 keyboardType="email-address"

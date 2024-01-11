@@ -1,10 +1,10 @@
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react'
-import { Camera, useCameraDevice, useCameraPermission, useCodeScanner } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermission, useCodeScanner, CameraRuntimeError } from 'react-native-vision-camera';
 
 
 const QRCamera = ({navigation}) => {
-  const { hasPermission, requestPermission } = useCameraPermission()
+  const { hasPermission, requestPermission, status } = useCameraPermission()
   useEffect(() => {
     requestPermission();
   },[])
@@ -17,7 +17,10 @@ const QRCamera = ({navigation}) => {
       navigation.navigate('BluetoothScreen', { scannedCode: codes[0].value });
     }
   })
-  if (device == null) return <NoCameraDeviceError />
+  if (status === 'denied' || status === 'blocked') {
+    return <Text>Camera permission is denied. Please enable it in the settings.</Text>;
+  }
+  if (device == null) return <Text>No Camera detected on this device.</Text>
 
 
   return (

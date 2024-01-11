@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WifiManager from "react-native-wifi-reborn";
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { dataHeaderText, dataText, globalStyles } from '../../GlobalStyles';
 
 const ConnectivityScreen = ({ navigation }) => {
 
@@ -75,9 +76,14 @@ const ConnectivityScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Connectivity Details</Text>
-      <Button title='Refresh Wifi' onPress={getCurrWifi} />
-      <Text>Currently connected to: {currentConnectedSSID}</Text>
+      <View style={styles.statusContainer}>
+        <Text style={dataHeaderText}>Currently connected to: {currentConnectedSSID}</Text>
+      </View>
+
+      <TouchableOpacity style={styles.button} onPress={getCurrWifi}>
+        <Text style={dataHeaderText}>Check currently connected Wifi</Text>
+      </TouchableOpacity>
+
       <TextInput
         style={styles.input}
         onChangeText={setSsid}
@@ -111,7 +117,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 10,
+  },
+  statusContainer : {
+    backgroundColor: globalStyles.BackgroundPrimary,
+    flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+    alignSelf: "center",
+    width: "95%",
+    borderRadius: 5,
+    maxHeight: "20%",
   },
   title: {
     fontSize: 20,
@@ -120,12 +136,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    height: 40,
+    height: 50,
     marginVertical: 12,
     borderWidth: 1,
     padding: 10,
-    borderRadius: 5,
-  }
+    borderRadius: 10,
+    width: "95%",
+    alignSelf: "center"
+  },
+  button : {
+    flex: 1, // Make both buttons take equal width
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    margin: 10,
+    maxHeight: "10%",
+    elevation: 3,
+    backgroundColor: globalStyles.Bright
+  },
 });
 
 export default ConnectivityScreen;

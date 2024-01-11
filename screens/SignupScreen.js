@@ -150,6 +150,10 @@ const SignupScreen = ({ navigation }) => {
     }
   }
 
+  const handleChangeEmailText = (email) => {
+    //Set lowercase
+    setEmail(email.toLowerCase());
+  }
 
   return (
     <View style={styles.container}>
@@ -192,7 +196,7 @@ const SignupScreen = ({ navigation }) => {
         />
         <TextInput
           style={standardInput}
-          onChangeText={setEmail}
+          onChangeText={handleChangeEmailText}
           value={email}
           placeholder="Enter your email"
           keyboardType="email-address"

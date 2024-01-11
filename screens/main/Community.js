@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, RefreshControl, TouchableOpacity } from 'react-native';
-
+import { globalStyles } from '../GlobalStyles';
+//Test data
 const blogPosts = [
   { id: '1', title: 'Gardening for retirees.', imageUrl: 'https://cdn.aarp.net/content/dam/aarp/health/healthy-living/2023/03/1140-woman-gardening.jpg' },
   { id: '2', title: 'See our new garden!', imageUrl: 'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/home-improvement/wp-content/uploads/2021/12/featured-image-gardening-landscaping.jpeg-1.jpg' },
@@ -54,16 +55,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: globalStyles.BackgroundPrimary,
   },
   header: {
     fontFamily: 'Prata-Regular',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
   },
   card: {
-    backgroundColor: '#a88448',
+    backgroundColor: globalStyles.CardBrown,
     borderRadius: 8,
     overflow: 'hidden',
     marginHorizontal: 16,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   title: {
     color: "white",
     padding: 16,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     fontFamily: "Prata-Regular"
   },
